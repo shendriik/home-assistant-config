@@ -1,0 +1,108 @@
+
+# Loads default set of integrations. Do not remove.
+default_config:
+
+# Load frontend themes from the themes folder
+frontend:
+  themes: !include_dir_merge_named themes
+
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
+timer:
+  valve_1_timer:
+    name: "Таймер крана 1"
+    duration: "00:00:05"
+  valve_2_timer:
+    name: "Таймер крана 2"
+    duration: "00:00:05"
+  leak_alarm_notification_timer:
+    name: "Таймер оповещения о протечке"
+    duration: "00:00:30"
+
+binary_sensor:
+  - platform: rpi_gpio
+    sensors:
+      - port: 25
+        name: "button1"
+        bouncetime: 80
+        pull_mode: "DOWN"
+
+      - port: 24
+        name: "button2"
+        bouncetime: 80
+        pull_mode: "DOWN"
+
+      - port: 23
+        name: "button3"
+        bouncetime: 80
+        pull_mode: "DOWN"
+
+      - port: 18
+        name: "button4"
+        bouncetime: 80
+        pull_mode: "DOWN"
+
+
+switch:
+  - platform: rpi_gpio
+    switches:
+      - port: 17
+        name: "led1"
+        unique_id: gpio_led1
+
+      - port: 27
+        name: "led2"
+        unique_id: gpio_led2
+
+      - port: 22
+        name: "led3"
+        unique_id: gpio_led3
+
+      - port: 5
+        name: "led4"
+        unique_id: gpio_led4
+
+      - port: 6
+        name: "led5"
+        unique_id: gpio_led5
+
+      - port: 13
+        name: "led6"
+        unique_id: gpio_led6
+
+      - port: 19
+        name: "led7"
+        unique_id: gpio_led7
+
+      - port: 26
+        name: "led8"
+        unique_id: gpio_led8
+
+      - port: 12
+        name: "relay_1"
+        unique_id: gpio_relay_1
+
+      - port: 16
+        name: "relay_2"
+        unique_id: gpio_relay_2
+
+      - port: 20
+        name: "relay_3"
+        unique_id: gpio_relay_3
+
+      - port: 21
+        name: "relay_4"
+        unique_id: gpio_relay_4
+
+template:
+  - binary_sensor:
+      - name: "Any Water Leak"
+        unique_id: any_water_leak
+        device_class: moisture
+        state: >
+          {{
+            is_state('binary_sensor.leak_sensor1', 'on') or
+            is_state('binary_sensor.leak_sensor_1', 'on')
+          }}

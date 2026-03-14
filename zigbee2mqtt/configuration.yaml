@@ -1,0 +1,60 @@
+version: 4
+mqtt:
+  base_topic: zigbee2mqtt
+  server: mqtt://core-mosquitto:1883
+  user: mqtt
+  password: mqtt
+serial:
+  adapter: zstack
+  baudrate: 115200
+  rtscts: false
+  port: /dev/ttyUSB0
+advanced:
+  log_level: debug
+  channel: 11
+  network_key:
+    - 197
+    - 172
+    - 198
+    - 184
+    - 219
+    - 178
+    - 165
+    - 209
+    - 154
+    - 69
+    - 96
+    - 108
+    - 12
+    - 87
+    - 226
+    - 9
+  pan_id: 48303
+  ext_pan_id:
+    - 145
+    - 11
+    - 136
+    - 137
+    - 172
+    - 224
+    - 24
+    - 244
+frontend:
+  enabled: true
+  port: 8099
+homeassistant:
+  enabled: true
+devices:
+  '0x00158d000549b9b1':
+    friendly_name: Movement sensor
+  '0xa4c1384b28859398':
+    friendly_name: Master key
+    homeassistant:
+      name: master key
+  '0x00158d000542ae5e':
+    friendly_name: Cube
+  '0xa4c138b0f95b3d26':
+    friendly_name: Leak detector 1
+groups:
+  '1':
+    friendly_name: Защита от протечки

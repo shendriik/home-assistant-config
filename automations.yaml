@@ -1,0 +1,556 @@
+- id: '1762606822818'
+  alias: Stop valve 1
+  description: ''
+  triggers:
+  - trigger: event
+    event_type: timer.finished
+    event_data:
+      entity_id: timer.valve_1_timer
+  conditions: []
+  actions:
+  - action: switch.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.relay_1
+  - action: switch.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.relay_2
+  - action: switch.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.led5
+  mode: single
+- id: '1762716536130'
+  alias: Turn off alarm button handler
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - input_button.turn_off_alarm_virtual_button
+  - trigger: state
+    entity_id:
+    - binary_sensor.button3_2
+    from:
+    - 'off'
+    to:
+    - 'on'
+  conditions:
+  - condition: state
+    entity_id: input_boolean.leak_detected
+    state:
+    - 'on'
+  actions:
+  - if:
+    - condition: and
+      conditions:
+      - condition: state
+        entity_id: binary_sensor.any_water_leak
+        state:
+        - 'off'
+    then:
+    - action: input_boolean.turn_off
+      metadata: {}
+      data: {}
+      target:
+        entity_id: input_boolean.leak_detected
+    - action: switch.turn_off
+      metadata: {}
+      data: {}
+      target:
+        entity_id: switch.led3
+    - action: timer.cancel
+      metadata: {}
+      data: {}
+      target:
+        entity_id: timer.leak_alarm_notification_timer
+    - action: persistent_notification.create
+      metadata: {}
+      data:
+        title: Протечка устранена
+        message: Система переведена в дежурный режим работы, можно открыть краны
+    else:
+    - action: persistent_notification.create
+      metadata: {}
+      data:
+        title: Запрещено
+        message: Нельзя снять режим "Авария" при сработавших датчиках протечки
+  mode: single
+- id: '1762716676141'
+  alias: Protect from the leak
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - input_boolean.leak_detected
+    to:
+    - 'on'
+  conditions: []
+  actions:
+  - action: timer.start
+    metadata: {}
+    data: {}
+    target:
+      entity_id: timer.leak_alarm_notification_timer
+  - action: switch.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.led3
+  - if:
+    - condition: state
+      entity_id: input_boolean.valve_1_state
+      state:
+      - 'on'
+    then:
+    - action: script.start_closing_valve_1
+      metadata: {}
+      data: {}
+  - if:
+    - condition: state
+      entity_id: input_boolean.valve_2_state
+      state:
+      - 'on'
+    then:
+    - action: script.start_closing_valve_2
+      metadata: {}
+      data: {}
+  mode: single
+- id: '1762722612315'
+  alias: Valve 1 button click handler
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - input_button.valve_1_virtual_button
+  - trigger: state
+    entity_id:
+    - binary_sensor.button1_2
+    from:
+    - 'off'
+    to:
+    - 'on'
+  conditions: []
+  actions:
+  - if:
+    - condition: state
+      entity_id: input_boolean.valve_1_state
+      state:
+      - 'on'
+    then:
+    - action: script.start_closing_valve_1
+      metadata: {}
+      data: {}
+    else:
+    - if:
+      - condition: state
+        entity_id: input_boolean.leak_detected
+        state:
+        - 'on'
+      then:
+      - action: persistent_notification.create
+        metadata: {}
+        data:
+          title: Запрещено
+          message: Невозможно открыть кран в состоянии "Авария"
+      - stop: Невозможно открыть кран в состоянии "Авария"
+        error: true
+      else:
+      - action: script.start_opening_valve_1
+        metadata: {}
+        data: {}
+  - action: persistent_notification.create
+    metadata: {}
+    data:
+      message: Производится управление краном холодной воды
+      title: ' Ручное управление'
+  mode: single
+- id: '1762765008061'
+  alias: Periodic leak alarm notification
+  description: ''
+  triggers:
+  - trigger: event
+    event_type: timer.finished
+    event_data:
+      entity_id: timer.leak_alarm_notification_timer
+  conditions:
+  - condition: state
+    entity_id: input_boolean.leak_detected
+    state:
+    - 'on'
+  actions:
+  - action: timer.start
+    metadata: {}
+    data: {}
+    target:
+      entity_id: timer.leak_alarm_notification_timer
+  - if:
+    - condition: state
+      entity_id: input_boolean.valve_1_state
+      state:
+      - 'on'
+    then:
+    - action: script.start_closing_valve_1
+      metadata: {}
+      data: {}
+    alias: Close valve 1 if accidentally opened
+  - if:
+    - condition: state
+      entity_id: input_boolean.valve_2_state
+      state:
+      - 'on'
+    then:
+    - action: script.start_closing_valve_2
+      metadata: {}
+      data: {}
+    alias: Close valve 2 if accidentally opened
+  - action: persistent_notification.create
+    metadata: {}
+    data:
+      title: Протечка
+      message: Устраните протечку и выключите состояние "Авария"
+  mode: single
+- id: '1762766413543'
+  alias: Leak detected
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.any_water_leak
+    from:
+    - 'off'
+    to:
+    - 'on'
+  conditions: []
+  actions:
+  - action: input_boolean.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: input_boolean.leak_detected
+  - action: switch.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.led7
+  - action: persistent_notification.create
+    metadata: {}
+    data:
+      message: Датчики зафиксировали протечку
+      title: Протечка
+  mode: single
+- id: '1762781454670'
+  alias: Set valve 1 state OPEN
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - switch.relay_1
+    from:
+    - 'on'
+    to:
+    - 'off'
+  conditions: []
+  actions:
+  - action: input_boolean.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: input_boolean.valve_1_state
+  - action: switch.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.led1
+  - action: persistent_notification.create
+    metadata: {}
+    data:
+      message: Холодная вода открыта
+      title: Кран открыт
+  mode: single
+- id: '1762782770629'
+  alias: Set valve 1 state CLOSE
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - switch.relay_2
+    from:
+    - 'on'
+    to:
+    - 'off'
+    enabled: true
+  conditions: []
+  actions:
+  - action: input_boolean.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: input_boolean.valve_1_state
+  - action: switch.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.led1
+  - action: persistent_notification.create
+    metadata: {}
+    data:
+      title: Кран закрыт
+      message: Холодная вода перекрыта
+  mode: single
+- id: '1762867914639'
+  alias: Stop valve 2
+  description: ''
+  triggers:
+  - trigger: event
+    event_type: timer.finished
+    event_data:
+      entity_id: timer.valve_2_timer
+  conditions: []
+  actions:
+  - action: switch.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.relay_3
+  - action: switch.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.relay_4
+  - action: switch.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.led6
+  mode: single
+- id: '1762870282225'
+  alias: Set valve 2 state OPEN
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - switch.relay_3
+    from:
+    - 'on'
+    to:
+    - 'off'
+  conditions: []
+  actions:
+  - action: input_boolean.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: input_boolean.valve_2_state
+  - action: switch.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.led2
+  - action: persistent_notification.create
+    metadata: {}
+    data:
+      message: Горачая вода открыта
+      title: Кран открыт
+  mode: single
+- id: '1762870407099'
+  alias: Set valve 2 state CLOSE
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - switch.relay_4
+    from:
+    - 'on'
+    to:
+    - 'off'
+  conditions: []
+  actions:
+  - action: input_boolean.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: input_boolean.valve_2_state
+  - action: switch.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.led2
+  - action: persistent_notification.create
+    metadata: {}
+    data:
+      title: Кран закрыт
+      message: Горачая вода перекрыта
+  mode: single
+- id: '1762873996623'
+  alias: Valve 2 button click handler
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - input_button.valve_2_virtual_button
+  - trigger: state
+    entity_id:
+    - binary_sensor.button2_2
+    from:
+    - 'off'
+    to:
+    - 'on'
+  conditions: []
+  actions:
+  - if:
+    - condition: state
+      entity_id: input_boolean.valve_2_state
+      state:
+      - 'on'
+    then:
+    - action: script.start_closing_valve_2
+      metadata: {}
+      data: {}
+    else:
+    - if:
+      - condition: state
+        entity_id: input_boolean.leak_detected
+        state:
+        - 'on'
+      then:
+      - action: persistent_notification.create
+        metadata: {}
+        data:
+          title: Запрещено
+          message: Невозможно открыть кран в состоянии "Авария"
+      - stop: Невозможно открыть кран в состоянии "Авария"
+        error: false
+      else:
+      - action: script.start_opening_valve_2
+        metadata: {}
+        data: {}
+  - action: persistent_notification.create
+    metadata: {}
+    data:
+      message: Производится управление краном горячей воды
+      title: ' Ручное управление'
+  mode: single
+- id: '1763842997436'
+  alias: Relay 1-2 interlock
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - switch.relay_1
+    from:
+    - 'off'
+    to:
+    - 'on'
+  conditions: []
+  actions:
+  - action: switch.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.relay_2
+  mode: single
+- id: '1763843125212'
+  alias: Relay 3-4 interlock
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - switch.relay_3
+    from:
+    - 'off'
+    to:
+    - 'on'
+  conditions: []
+  actions:
+  - action: switch.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.relay_4
+  mode: single
+- id: '1763843340479'
+  alias: Relay 2 interlock
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - switch.relay_2
+    from:
+    - 'off'
+    to:
+    - 'on'
+  conditions: []
+  actions:
+  - action: switch.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.relay_1
+  mode: single
+- id: '1763843462880'
+  alias: Relay 4 interlock
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - switch.relay_4
+    from:
+    - 'off'
+    to:
+    - 'on'
+  conditions: []
+  actions:
+  - action: switch.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.relay_3
+  mode: single
+- id: '1769954137702'
+  alias: No leak detected
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.any_water_leak
+    from:
+    - 'on'
+    to:
+    - 'off'
+  conditions: []
+  actions:
+  - action: switch.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.led7
+  mode: single
+- id: '1773511951649'
+  alias: System startup fail-safe
+  description: ''
+  triggers:
+  - trigger: homeassistant
+    event: start
+  conditions: []
+  actions:
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 5
+      milliseconds: 0
+  - action: switch.turn_off
+    metadata: {}
+    target:
+      entity_id: switch.relay_1
+    data: {}
+  - action: script.start_closing_valve_1
+    metadata: {}
+    data: {}
+  - action: script.start_closing_valve_2
+    metadata: {}
+    data: {}
+  mode: single

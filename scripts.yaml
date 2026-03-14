@@ -1,0 +1,128 @@
+beep:
+  sequence:
+  - repeat:
+      count: 2
+      sequence:
+      - type: turn_on
+        device_id: 1ce9549fa426d5feb938502869fb145c
+        entity_id: 458782792d1a4e30ba062ed41254b446
+        domain: switch
+        enabled: true
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 0
+          milliseconds: 1
+      - type: turn_off
+        device_id: 1ce9549fa426d5feb938502869fb145c
+        entity_id: 458782792d1a4e30ba062ed41254b446
+        domain: switch
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 0
+          milliseconds: 10
+  alias: Beep
+  description: ''
+start_closing_valve_1:
+  sequence:
+  - if:
+    - condition: state
+      entity_id: timer.valve_1_timer
+      state:
+      - idle
+      enabled: true
+    then:
+    - action: switch.turn_on
+      metadata: {}
+      data: {}
+      target:
+        entity_id: switch.relay_2
+    - action: switch.turn_on
+      metadata: {}
+      data: {}
+      target:
+        entity_id: switch.led5
+    - action: timer.start
+      metadata: {}
+      data: {}
+      target:
+        entity_id: timer.valve_1_timer
+  alias: Start closing valve 1
+  description: ''
+start_opening_valve_1:
+  sequence:
+  - if:
+    - condition: state
+      entity_id: timer.valve_1_timer
+      state:
+      - idle
+    then:
+    - action: switch.turn_on
+      metadata: {}
+      data: {}
+      target:
+        entity_id: switch.relay_1
+    - action: switch.turn_on
+      metadata: {}
+      data: {}
+      target:
+        entity_id: switch.led5
+    - action: timer.start
+      metadata: {}
+      data: {}
+      target:
+        entity_id: timer.valve_1_timer
+  alias: Start opening valve 1
+  description: ''
+start_closing_valve_2:
+  sequence:
+  - if:
+    - condition: state
+      entity_id: timer.valve_2_timer
+      state:
+      - idle
+    then:
+    - action: switch.turn_on
+      metadata: {}
+      data: {}
+      target:
+        entity_id: switch.relay_4
+    - action: switch.turn_on
+      metadata: {}
+      data: {}
+      target:
+        entity_id: switch.led6
+    - action: timer.start
+      metadata: {}
+      data: {}
+      target:
+        entity_id: timer.valve_2_timer
+  alias: Start closing valve 2
+  description: ''
+  fields: {}
+start_opening_valve_2:
+  sequence:
+  - if:
+    - condition: state
+      entity_id: timer.valve_2_timer
+      state:
+      - idle
+    then:
+    - action: switch.turn_on
+      metadata: {}
+      data: {}
+      target:
+        entity_id: switch.relay_3
+    - action: switch.turn_on
+      metadata: {}
+      data: {}
+      target:
+        entity_id: switch.led6
+    - action: timer.start
+      metadata: {}
+      data: {}
+      target:
+        entity_id: timer.valve_2_timer
+  alias: Start opening valve 2
+  description: ''

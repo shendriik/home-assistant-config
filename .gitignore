@@ -1,0 +1,26 @@
+# Home Assistant runtime
+.storage/
+.cache/
+__pycache__/
+*.pyc
+
+# databases
+*.db
+*.db-shm
+*.db-wal
+
+# logs
+*.log
+
+# locks
+*.lock
+
+# secrets
+secrets.yaml
+
+# media
+tts/
+www/community/
+
+# backups
+backups/
