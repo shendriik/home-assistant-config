@@ -3,3 +3,5 @@
 !scripts.yaml
 !configuration.yaml
 !automations.yaml
+!packages/
+!packages/helpers.yaml
