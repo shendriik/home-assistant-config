@@ -13,10 +13,10 @@ scene: !include scenes.yaml
 timer:
   valve_1_timer:
     name: "Таймер крана 1"
-    duration: "00:00:05"
+    duration: "00:00:17"
   valve_2_timer:
     name: "Таймер крана 2"
-    duration: "00:00:05"
+    duration: "00:00:17"
   leak_alarm_notification_timer:
     name: "Таймер оповещения о протечке"
     duration: "00:00:30"
@@ -43,7 +43,6 @@ binary_sensor:
         name: "button4"
         bouncetime: 80
         pull_mode: "DOWN"
-
 
 switch:
   - platform: rpi_gpio
@@ -77,8 +76,8 @@ switch:
         unique_id: gpio_led7
 
       - port: 26
-        name: "led8"
-        unique_id: gpio_led8
+        name: "beeper"
+        unique_id: gpio_beeper
 
       - port: 12
         name: "relay_1"

@@ -1,27 +1,28 @@
 beep:
   sequence:
   - repeat:
-      count: 2
+      count: 4
       sequence:
-      - type: turn_on
-        device_id: 1ce9549fa426d5feb938502869fb145c
-        entity_id: 458782792d1a4e30ba062ed41254b446
-        domain: switch
-        enabled: true
+      - action: switch.turn_on
+        metadata: {}
+        target:
+          entity_id: switch.beeper
+        data: {}
       - delay:
           hours: 0
           minutes: 0
           seconds: 0
-          milliseconds: 1
-      - type: turn_off
-        device_id: 1ce9549fa426d5feb938502869fb145c
-        entity_id: 458782792d1a4e30ba062ed41254b446
-        domain: switch
+          milliseconds: 100
+      - action: switch.turn_off
+        metadata: {}
+        target:
+          entity_id: switch.beeper
+        data: {}
       - delay:
           hours: 0
           minutes: 0
           seconds: 0
-          milliseconds: 10
+          milliseconds: 100
   alias: Beep
   description: ''
 start_closing_valve_1:

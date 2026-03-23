@@ -100,6 +100,9 @@
     data: {}
     target:
       entity_id: switch.led3
+  - action: script.beep
+    metadata: {}
+    data: {}
   - if:
     - condition: state
       entity_id: input_boolean.valve_1_state
