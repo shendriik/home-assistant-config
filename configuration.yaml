@@ -6,20 +6,13 @@ default_config:
 frontend:
   themes: !include_dir_merge_named themes
 
+homeassistant:
+  packages: !include_dir_named packages
+
 automation: !include automations.yaml
 script: !include scripts.yaml
 scene: !include scenes.yaml
 
-timer:
-  valve_1_timer:
-    name: "Таймер крана 1"
-    duration: "00:00:17"
-  valve_2_timer:
-    name: "Таймер крана 2"
-    duration: "00:00:17"
-  leak_alarm_notification_timer:
-    name: "Таймер оповещения о протечке"
-    duration: "00:00:30"
 
 binary_sensor:
   - platform: rpi_gpio
@@ -95,13 +88,3 @@ switch:
         name: "relay_4"
         unique_id: gpio_relay_4
 
-template:
-  - binary_sensor:
-      - name: "Any Water Leak"
-        unique_id: any_water_leak
-        device_class: moisture
-        state: >
-          {{
-            is_state('binary_sensor.leak_sensor1', 'on') or
-            is_state('binary_sensor.leak_sensor_1', 'on')
-          }}

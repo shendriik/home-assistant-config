@@ -1,0 +1,43 @@
+timer:
+  valve_1_timer:
+    name: "Таймер крана 1"
+    duration: "00:00:05"
+  valve_2_timer:
+    name: "Таймер крана 2"
+    duration: "00:00:05"
+  leak_alarm_notification_timer:
+    name: "Таймер оповещения о протечке"
+    duration: "00:00:30"
+
+input_boolean:
+  leak_detected:
+    name: "Протечка обнаружена"
+    icon: mdi:water-alert
+  valve_1_state:
+    name: "Состояние крана 1"
+    icon: mdi:pipe-valve
+  valve_2_state:
+    name: "Состояние крана 2"
+    icon: mdi:pipe-valve
+
+input_button:
+  turn_off_alarm_virtual_button:
+    name: "Сброс аварии"
+    icon: mdi:alarm-off
+  valve_1_virtual_button:
+    name: "Управление краном 1"
+    icon: mdi:gesture-tap-button
+  valve_2_virtual_button:
+    name: "Управление краном 2"
+    icon: mdi:gesture-tap-button
+
+template:
+  - binary_sensor:
+      - name: "Any Water Leak"
+        unique_id: any_water_leak
+        device_class: moisture
+        state: >
+          {{
+            is_state('binary_sensor.leak_sensor1', 'on') or
+            is_state('binary_sensor.leak_sensor_1', 'on')
+          }}
