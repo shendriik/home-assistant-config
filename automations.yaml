@@ -33,7 +33,7 @@
     - input_button.turn_off_alarm_virtual_button
   - trigger: state
     entity_id:
-    - binary_sensor.button3_2
+    - binary_sensor.button3
     from:
     - 'off'
     to:
@@ -131,7 +131,7 @@
     - input_button.valve_1_virtual_button
   - trigger: state
     entity_id:
-    - binary_sensor.button1_2
+    - binary_sensor.button1
     from:
     - 'off'
     to:
@@ -397,7 +397,7 @@
     - input_button.valve_2_virtual_button
   - trigger: state
     entity_id:
-    - binary_sensor.button2_2
+    - binary_sensor.button2
     from:
     - 'off'
     to:
