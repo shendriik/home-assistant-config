@@ -664,6 +664,8 @@
       state:
       - 'on'
   actions:
+  - variables:
+      toggle_state: false
   - repeat:
       while:
       - condition: or
@@ -677,28 +679,50 @@
           state:
           - 'on'
       sequence:
+      - variables:
+          toggle_state: '{{ not toggle_state }}'
       - if:
         - condition: state
           entity_id: input_boolean.valve_1_state_unknown
           state:
           - 'on'
         then:
-        - action: switch.toggle
-          metadata: {}
-          data: {}
-          target:
-            entity_id: switch.led1
+        - if:
+          - condition: template
+            value_template: '{{ toggle_state }}'
+          then:
+          - action: switch.turn_on
+            metadata: {}
+            data: {}
+            target:
+              entity_id: switch.led1
+          else:
+          - action: switch.turn_off
+            metadata: {}
+            data: {}
+            target:
+              entity_id: switch.led1
       - if:
         - condition: state
           entity_id: input_boolean.valve_2_state_unknown
           state:
           - 'on'
         then:
-        - action: switch.toggle
-          metadata: {}
-          data: {}
-          target:
-            entity_id: switch.led2
+        - if:
+          - condition: template
+            value_template: '{{ toggle_state }}'
+          then:
+          - action: switch.turn_on
+            metadata: {}
+            data: {}
+            target:
+              entity_id: switch.led2
+          else:
+          - action: switch.turn_off
+            metadata: {}
+            data: {}
+            target:
+              entity_id: switch.led2
       - delay:
           hours: 0
           minutes: 0
