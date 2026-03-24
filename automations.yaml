@@ -641,69 +641,64 @@
     data: {}
   mode: single
 - id: '1773511951650'
-  alias: Blink valve 1 indicator when state unknown
+  alias: Blink unknown valve indicators (shared timer)
   description: ''
   triggers:
   - trigger: state
     entity_id:
     - input_boolean.valve_1_state_unknown
-    to:
-    - 'on'
-  - trigger: homeassistant
-    event: start
-  conditions:
-  - condition: state
-    entity_id: input_boolean.valve_1_state_unknown
-    state:
-    - 'on'
-  actions:
-  - repeat:
-      while:
-      - condition: state
-        entity_id: input_boolean.valve_1_state_unknown
-        state:
-        - 'on'
-      sequence:
-      - action: switch.toggle
-        metadata: {}
-        data: {}
-        target:
-          entity_id: switch.led1
-      - delay:
-          hours: 0
-          minutes: 0
-          seconds: 0
-          milliseconds: 250
-  mode: restart
-- id: '1773511951651'
-  alias: Blink valve 2 indicator when state unknown
-  description: ''
-  triggers:
-  - trigger: state
-    entity_id:
     - input_boolean.valve_2_state_unknown
     to:
     - 'on'
   - trigger: homeassistant
     event: start
   conditions:
-  - condition: state
-    entity_id: input_boolean.valve_2_state_unknown
-    state:
-    - 'on'
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: input_boolean.valve_1_state_unknown
+      state:
+      - 'on'
+    - condition: state
+      entity_id: input_boolean.valve_2_state_unknown
+      state:
+      - 'on'
   actions:
   - repeat:
       while:
-      - condition: state
-        entity_id: input_boolean.valve_2_state_unknown
-        state:
-        - 'on'
+      - condition: or
+        conditions:
+        - condition: state
+          entity_id: input_boolean.valve_1_state_unknown
+          state:
+          - 'on'
+        - condition: state
+          entity_id: input_boolean.valve_2_state_unknown
+          state:
+          - 'on'
       sequence:
-      - action: switch.toggle
-        metadata: {}
-        data: {}
-        target:
-          entity_id: switch.led2
+      - if:
+        - condition: state
+          entity_id: input_boolean.valve_1_state_unknown
+          state:
+          - 'on'
+        then:
+        - action: switch.toggle
+          metadata: {}
+          data: {}
+          target:
+            entity_id: switch.led1
+      - if:
+        - condition: state
+          entity_id: input_boolean.valve_2_state_unknown
+          state:
+          - 'on'
+        then:
+        - action: switch.toggle
+          metadata: {}
+          data: {}
+          target:
+            entity_id: switch.led2
       - delay:
           hours: 0
           minutes: 0
