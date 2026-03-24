@@ -19,6 +19,11 @@
         state:
         - 'off'
       sequence:
+      - action: input_boolean.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: input_boolean.valve_1_state_unknown
       - action: input_boolean.turn_on
         metadata: {}
         data: {}
@@ -48,6 +53,11 @@
         metadata: {}
         data: {}
         target:
+          entity_id: input_boolean.valve_1_state_unknown
+      - action: input_boolean.turn_off
+        metadata: {}
+        data: {}
+        target:
           entity_id: input_boolean.valve_1_state
       - action: switch.turn_off
         metadata: {}
@@ -60,11 +70,26 @@
           title: Кран закрыт
           message: Холодная вода перекрыта
     default:
+    - action: input_boolean.turn_on
+      metadata: {}
+      data: {}
+      target:
+        entity_id: input_boolean.valve_1_state_unknown
+    - action: input_boolean.turn_on
+      metadata: {}
+      data: {}
+      target:
+        entity_id: input_boolean.valve_1_state
+    - action: switch.turn_on
+      metadata: {}
+      data: {}
+      target:
+        entity_id: switch.led1
     - action: persistent_notification.create
       metadata: {}
       data:
         title: Предупреждение
-        message: Таймер крана 1 завершился без однозначного активного реле, состояние крана не обновлено
+        message: Таймер крана 1 завершился без активного реле. Состояние крана не подтверждено, до восстановления контроля считаем его открытым и будем принудительно закрывать при протечке
   - action: switch.turn_off
     metadata: {}
     data: {}
@@ -162,6 +187,28 @@
     data: {}
   - if:
     - condition: state
+      entity_id: input_boolean.valve_1_state_unknown
+      state:
+      - 'on'
+    then:
+    - action: persistent_notification.create
+      metadata: {}
+      data:
+        title: Предупреждение
+        message: Состояние крана холодной воды не подтверждено. В режиме аварии он считается открытым и будет принудительно закрываться
+  - if:
+    - condition: state
+      entity_id: input_boolean.valve_2_state_unknown
+      state:
+      - 'on'
+    then:
+    - action: persistent_notification.create
+      metadata: {}
+      data:
+        title: Предупреждение
+        message: Состояние крана горячей воды не подтверждено. В режиме аварии он считается открытым и будет принудительно закрываться
+  - if:
+    - condition: state
       entity_id: input_boolean.valve_1_state
       state:
       - 'on'
@@ -249,6 +296,28 @@
       entity_id: timer.leak_alarm_notification_timer
   - if:
     - condition: state
+      entity_id: input_boolean.valve_1_state_unknown
+      state:
+      - 'on'
+    then:
+    - action: persistent_notification.create
+      metadata: {}
+      data:
+        title: Предупреждение
+        message: Состояние крана холодной воды всё ещё не подтверждено. В режиме аварии он считается открытым и снова будет принудительно закрываться
+  - if:
+    - condition: state
+      entity_id: input_boolean.valve_2_state_unknown
+      state:
+      - 'on'
+    then:
+    - action: persistent_notification.create
+      metadata: {}
+      data:
+        title: Предупреждение
+        message: Состояние крана горячей воды всё ещё не подтверждено. В режиме аварии он считается открытым и снова будет принудительно закрываться
+  - if:
+    - condition: state
       entity_id: input_boolean.valve_1_state
       state:
       - 'on'
@@ -323,6 +392,11 @@
         state:
         - 'off'
       sequence:
+      - action: input_boolean.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: input_boolean.valve_2_state_unknown
       - action: input_boolean.turn_on
         metadata: {}
         data: {}
@@ -352,6 +426,11 @@
         metadata: {}
         data: {}
         target:
+          entity_id: input_boolean.valve_2_state_unknown
+      - action: input_boolean.turn_off
+        metadata: {}
+        data: {}
+        target:
           entity_id: input_boolean.valve_2_state
       - action: switch.turn_off
         metadata: {}
@@ -364,11 +443,26 @@
           title: Кран закрыт
           message: Горачая вода перекрыта
     default:
+    - action: input_boolean.turn_on
+      metadata: {}
+      data: {}
+      target:
+        entity_id: input_boolean.valve_2_state_unknown
+    - action: input_boolean.turn_on
+      metadata: {}
+      data: {}
+      target:
+        entity_id: input_boolean.valve_2_state
+    - action: switch.turn_on
+      metadata: {}
+      data: {}
+      target:
+        entity_id: switch.led2
     - action: persistent_notification.create
       metadata: {}
       data:
         title: Предупреждение
-        message: Таймер крана 2 завершился без однозначного активного реле, состояние крана не обновлено
+        message: Таймер крана 2 завершился без активного реле. Состояние крана не подтверждено, до восстановления контроля считаем его открытым и будем принудительно закрывать при протечке
   - action: switch.turn_off
     metadata: {}
     data: {}

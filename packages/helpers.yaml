@@ -16,9 +16,15 @@ input_boolean:
   valve_1_state:
     name: "Состояние крана 1"
     icon: mdi:pipe-valve
+  valve_1_state_unknown:
+    name: "Состояние крана 1 не подтверждено"
+    icon: mdi:alert-circle
   valve_2_state:
     name: "Состояние крана 2"
     icon: mdi:pipe-valve
+  valve_2_state_unknown:
+    name: "Состояние крана 2 не подтверждено"
+    icon: mdi:alert-circle
 
 input_button:
   turn_off_alarm_virtual_button:
