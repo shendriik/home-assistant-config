@@ -8,6 +8,91 @@
       entity_id: timer.valve_1_timer
   conditions: []
   actions:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: switch.relay_1
+        state:
+        - 'on'
+      - condition: state
+        entity_id: switch.relay_2
+        state:
+        - 'off'
+      sequence:
+      - action: input_boolean.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: input_boolean.valve_1_state_unknown
+      - action: input_boolean.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: input_boolean.valve_1_state
+      - action: switch.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.led1
+      - action: persistent_notification.create
+        metadata: {}
+        data:
+          message: Холодная вода открыта
+          title: Кран открыт
+    - conditions:
+      - condition: state
+        entity_id: switch.relay_2
+        state:
+        - 'on'
+      - condition: state
+        entity_id: switch.relay_1
+        state:
+        - 'off'
+      sequence:
+      - action: input_boolean.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: input_boolean.valve_1_state_unknown
+      - action: input_boolean.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: input_boolean.valve_1_state
+      - action: switch.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.led1
+      - action: persistent_notification.create
+        metadata: {}
+        data:
+          title: Кран закрыт
+          message: Холодная вода перекрыта
+    default:
+    - action: input_boolean.turn_on
+      metadata: {}
+      data: {}
+      target:
+        entity_id: input_boolean.valve_1_state_unknown
+    - action: input_boolean.turn_on
+      metadata: {}
+      data: {}
+      target:
+        entity_id: input_boolean.valve_1_state
+    - action: switch.turn_on
+      metadata: {}
+      data: {}
+      target:
+        entity_id: switch.led1
+    - action: persistent_notification.create
+      metadata: {}
+      data:
+        title: Предупреждение
+        message: Таймер крана 1 завершился без активного реле. Состояние крана не подтверждено, до восстановления контроля считаем его открытым и будем принудительно закрывать при протечке
+    - action: script.unknown_valve_state_beep
+      metadata: {}
+      data: {}
   - action: switch.turn_off
     metadata: {}
     data: {}
@@ -104,19 +189,31 @@
     metadata: {}
     data: {}
   - if:
-    - condition: state
-      entity_id: input_boolean.valve_1_state
-      state:
-      - 'on'
+    - condition: or
+      conditions:
+      - condition: state
+        entity_id: input_boolean.valve_1_state
+        state:
+        - 'on'
+      - condition: state
+        entity_id: input_boolean.valve_1_state_unknown
+        state:
+        - 'on'
     then:
     - action: script.start_closing_valve_1
       metadata: {}
       data: {}
   - if:
-    - condition: state
-      entity_id: input_boolean.valve_2_state
-      state:
-      - 'on'
+    - condition: or
+      conditions:
+      - condition: state
+        entity_id: input_boolean.valve_2_state
+        state:
+        - 'on'
+      - condition: state
+        entity_id: input_boolean.valve_2_state_unknown
+        state:
+        - 'on'
     then:
     - action: script.start_closing_valve_2
       metadata: {}
@@ -139,10 +236,16 @@
   conditions: []
   actions:
   - if:
-    - condition: state
-      entity_id: input_boolean.valve_1_state
-      state:
-      - 'on'
+    - condition: or
+      conditions:
+      - condition: state
+        entity_id: input_boolean.valve_1_state
+        state:
+        - 'on'
+      - condition: state
+        entity_id: input_boolean.valve_1_state_unknown
+        state:
+        - 'on'
     then:
     - action: script.start_closing_valve_1
       metadata: {}
@@ -191,20 +294,32 @@
     target:
       entity_id: timer.leak_alarm_notification_timer
   - if:
-    - condition: state
-      entity_id: input_boolean.valve_1_state
-      state:
-      - 'on'
+    - condition: or
+      conditions:
+      - condition: state
+        entity_id: input_boolean.valve_1_state
+        state:
+        - 'on'
+      - condition: state
+        entity_id: input_boolean.valve_1_state_unknown
+        state:
+        - 'on'
     then:
     - action: script.start_closing_valve_1
       metadata: {}
       data: {}
     alias: Close valve 1 if accidentally opened
   - if:
-    - condition: state
-      entity_id: input_boolean.valve_2_state
-      state:
-      - 'on'
+    - condition: or
+      conditions:
+      - condition: state
+        entity_id: input_boolean.valve_2_state
+        state:
+        - 'on'
+      - condition: state
+        entity_id: input_boolean.valve_2_state_unknown
+        state:
+        - 'on'
     then:
     - action: script.start_closing_valve_2
       metadata: {}
@@ -245,65 +360,6 @@
       message: Датчики зафиксировали протечку
       title: Протечка
   mode: single
-- id: '1762781454670'
-  alias: Set valve 1 state OPEN
-  description: ''
-  triggers:
-  - trigger: state
-    entity_id:
-    - switch.relay_1
-    from:
-    - 'on'
-    to:
-    - 'off'
-  conditions: []
-  actions:
-  - action: input_boolean.turn_on
-    metadata: {}
-    data: {}
-    target:
-      entity_id: input_boolean.valve_1_state
-  - action: switch.turn_on
-    metadata: {}
-    data: {}
-    target:
-      entity_id: switch.led1
-  - action: persistent_notification.create
-    metadata: {}
-    data:
-      message: Холодная вода открыта
-      title: Кран открыт
-  mode: single
-- id: '1762782770629'
-  alias: Set valve 1 state CLOSE
-  description: ''
-  triggers:
-  - trigger: state
-    entity_id:
-    - switch.relay_2
-    from:
-    - 'on'
-    to:
-    - 'off'
-    enabled: true
-  conditions: []
-  actions:
-  - action: input_boolean.turn_off
-    metadata: {}
-    data: {}
-    target:
-      entity_id: input_boolean.valve_1_state
-  - action: switch.turn_off
-    metadata: {}
-    data: {}
-    target:
-      entity_id: switch.led1
-  - action: persistent_notification.create
-    metadata: {}
-    data:
-      title: Кран закрыт
-      message: Холодная вода перекрыта
-  mode: single
 - id: '1762867914639'
   alias: Stop valve 2
   description: ''
@@ -314,6 +370,91 @@
       entity_id: timer.valve_2_timer
   conditions: []
   actions:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: switch.relay_3
+        state:
+        - 'on'
+      - condition: state
+        entity_id: switch.relay_4
+        state:
+        - 'off'
+      sequence:
+      - action: input_boolean.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: input_boolean.valve_2_state_unknown
+      - action: input_boolean.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: input_boolean.valve_2_state
+      - action: switch.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.led2
+      - action: persistent_notification.create
+        metadata: {}
+        data:
+          message: Горачая вода открыта
+          title: Кран открыт
+    - conditions:
+      - condition: state
+        entity_id: switch.relay_4
+        state:
+        - 'on'
+      - condition: state
+        entity_id: switch.relay_3
+        state:
+        - 'off'
+      sequence:
+      - action: input_boolean.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: input_boolean.valve_2_state_unknown
+      - action: input_boolean.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: input_boolean.valve_2_state
+      - action: switch.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.led2
+      - action: persistent_notification.create
+        metadata: {}
+        data:
+          title: Кран закрыт
+          message: Горачая вода перекрыта
+    default:
+    - action: input_boolean.turn_on
+      metadata: {}
+      data: {}
+      target:
+        entity_id: input_boolean.valve_2_state_unknown
+    - action: input_boolean.turn_on
+      metadata: {}
+      data: {}
+      target:
+        entity_id: input_boolean.valve_2_state
+    - action: switch.turn_on
+      metadata: {}
+      data: {}
+      target:
+        entity_id: switch.led2
+    - action: persistent_notification.create
+      metadata: {}
+      data:
+        title: Предупреждение
+        message: Таймер крана 2 завершился без активного реле. Состояние крана не подтверждено, до восстановления контроля считаем его открытым и будем принудительно закрывать при протечке
+    - action: script.unknown_valve_state_beep
+      metadata: {}
+      data: {}
   - action: switch.turn_off
     metadata: {}
     data: {}
@@ -329,64 +470,6 @@
     data: {}
     target:
       entity_id: switch.led6
-  mode: single
-- id: '1762870282225'
-  alias: Set valve 2 state OPEN
-  description: ''
-  triggers:
-  - trigger: state
-    entity_id:
-    - switch.relay_3
-    from:
-    - 'on'
-    to:
-    - 'off'
-  conditions: []
-  actions:
-  - action: input_boolean.turn_on
-    metadata: {}
-    data: {}
-    target:
-      entity_id: input_boolean.valve_2_state
-  - action: switch.turn_on
-    metadata: {}
-    data: {}
-    target:
-      entity_id: switch.led2
-  - action: persistent_notification.create
-    metadata: {}
-    data:
-      message: Горачая вода открыта
-      title: Кран открыт
-  mode: single
-- id: '1762870407099'
-  alias: Set valve 2 state CLOSE
-  description: ''
-  triggers:
-  - trigger: state
-    entity_id:
-    - switch.relay_4
-    from:
-    - 'on'
-    to:
-    - 'off'
-  conditions: []
-  actions:
-  - action: input_boolean.turn_off
-    metadata: {}
-    data: {}
-    target:
-      entity_id: input_boolean.valve_2_state
-  - action: switch.turn_off
-    metadata: {}
-    data: {}
-    target:
-      entity_id: switch.led2
-  - action: persistent_notification.create
-    metadata: {}
-    data:
-      title: Кран закрыт
-      message: Горачая вода перекрыта
   mode: single
 - id: '1762873996623'
   alias: Valve 2 button click handler
@@ -405,10 +488,16 @@
   conditions: []
   actions:
   - if:
-    - condition: state
-      entity_id: input_boolean.valve_2_state
-      state:
-      - 'on'
+    - condition: or
+      conditions:
+      - condition: state
+        entity_id: input_boolean.valve_2_state
+        state:
+        - 'on'
+      - condition: state
+        entity_id: input_boolean.valve_2_state_unknown
+        state:
+        - 'on'
     then:
     - action: script.start_closing_valve_2
       metadata: {}
@@ -557,3 +646,92 @@
     metadata: {}
     data: {}
   mode: single
+- id: '1773511951650'
+  alias: Blink unknown valve indicators (shared timer)
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - input_boolean.valve_1_state_unknown
+    - input_boolean.valve_2_state_unknown
+    to:
+    - 'on'
+  - trigger: homeassistant
+    event: start
+  conditions:
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: input_boolean.valve_1_state_unknown
+      state:
+      - 'on'
+    - condition: state
+      entity_id: input_boolean.valve_2_state_unknown
+      state:
+      - 'on'
+  actions:
+  - variables:
+      toggle_state: false
+  - repeat:
+      while:
+      - condition: or
+        conditions:
+        - condition: state
+          entity_id: input_boolean.valve_1_state_unknown
+          state:
+          - 'on'
+        - condition: state
+          entity_id: input_boolean.valve_2_state_unknown
+          state:
+          - 'on'
+      sequence:
+      - variables:
+          toggle_state: '{{ not toggle_state }}'
+      - if:
+        - condition: state
+          entity_id: input_boolean.valve_1_state_unknown
+          state:
+          - 'on'
+        then:
+        - if:
+          - condition: template
+            value_template: '{{ toggle_state }}'
+          then:
+          - action: switch.turn_on
+            metadata: {}
+            data: {}
+            target:
+              entity_id: switch.led1
+          else:
+          - action: switch.turn_off
+            metadata: {}
+            data: {}
+            target:
+              entity_id: switch.led1
+      - if:
+        - condition: state
+          entity_id: input_boolean.valve_2_state_unknown
+          state:
+          - 'on'
+        then:
+        - if:
+          - condition: template
+            value_template: '{{ toggle_state }}'
+          then:
+          - action: switch.turn_on
+            metadata: {}
+            data: {}
+            target:
+              entity_id: switch.led2
+          else:
+          - action: switch.turn_off
+            metadata: {}
+            data: {}
+            target:
+              entity_id: switch.led2
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 0
+          milliseconds: 250
+  mode: restart
