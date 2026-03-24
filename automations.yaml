@@ -674,11 +674,6 @@
           minutes: 0
           seconds: 0
           milliseconds: 250
-  - action: switch.turn_off
-    metadata: {}
-    data: {}
-    target:
-      entity_id: switch.led1
   mode: restart
 - id: '1773511951651'
   alias: Blink valve 2 indicator when state unknown
@@ -714,9 +709,4 @@
           minutes: 0
           seconds: 0
           milliseconds: 250
-  - action: switch.turn_off
-    metadata: {}
-    data: {}
-    target:
-      entity_id: switch.led2
   mode: restart
