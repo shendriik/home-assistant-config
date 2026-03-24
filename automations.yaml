@@ -90,6 +90,9 @@
       data:
         title: Предупреждение
         message: Таймер крана 1 завершился без активного реле. Состояние крана не подтверждено, до восстановления контроля считаем его открытым и будем принудительно закрывать при протечке
+    - action: script.unknown_valve_state_beep
+      metadata: {}
+      data: {}
   - action: switch.turn_off
     metadata: {}
     data: {}
@@ -449,6 +452,9 @@
       data:
         title: Предупреждение
         message: Таймер крана 2 завершился без активного реле. Состояние крана не подтверждено, до восстановления контроля считаем его открытым и будем принудительно закрывать при протечке
+    - action: script.unknown_valve_state_beep
+      metadata: {}
+      data: {}
   - action: switch.turn_off
     metadata: {}
     data: {}

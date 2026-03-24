@@ -127,3 +127,34 @@ start_opening_valve_2:
         entity_id: timer.valve_2_timer
   alias: Start opening valve 2
   description: ''
+unknown_valve_state_beep:
+  sequence:
+  - repeat:
+      count: 2
+      sequence:
+      - action: switch.turn_on
+        metadata: {}
+        target:
+          entity_id: switch.beeper
+        data: {}
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 0
+          milliseconds: 150
+      - action: switch.turn_off
+        metadata: {}
+        target:
+          entity_id: switch.beeper
+        data: {}
+      - if:
+        - condition: template
+          value_template: '{{ repeat.index < 2 }}'
+        then:
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 0
+            milliseconds: 50
+  alias: Unknown valve state beep
+  description: ''
