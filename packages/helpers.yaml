@@ -10,6 +10,10 @@ timer:
     duration: "00:00:30"
 
 input_boolean:
+  leak_protection_armed:
+    name: "Защита от протечки включена"
+    icon: mdi:shield-check
+    initial: true
   leak_detected:
     name: "Протечка обнаружена"
     icon: mdi:water-alert

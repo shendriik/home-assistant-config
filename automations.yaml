@@ -342,7 +342,11 @@
     - 'off'
     to:
     - 'on'
-  conditions: []
+  conditions:
+  - condition: state
+    entity_id: input_boolean.leak_protection_armed
+    state:
+    - 'on'
   actions:
   - action: input_boolean.turn_on
     metadata: {}
@@ -359,6 +363,74 @@
     data:
       message: Датчики зафиксировали протечку
       title: Протечка
+  mode: single
+- id: '1773511951651'
+  alias: Leak protection mode toggle by button 4 long press
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.button4
+    from:
+    - 'off'
+    to:
+    - 'on'
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 2
+  conditions: []
+  actions:
+  - if:
+    - condition: state
+      entity_id: input_boolean.leak_protection_armed
+      state:
+      - 'on'
+    then:
+    - if:
+      - condition: and
+        conditions:
+        - condition: state
+          entity_id: binary_sensor.any_water_leak
+          state:
+          - 'off'
+        - condition: state
+          entity_id: input_boolean.leak_detected
+          state:
+          - 'off'
+      then:
+      - action: input_boolean.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: input_boolean.leak_protection_armed
+      - action: persistent_notification.create
+        metadata: {}
+        data:
+          title: Режим защиты от протечки
+          message: Система переведена в режим "Без охраны"
+      else:
+      - action: persistent_notification.create
+        metadata: {}
+        data:
+          title: Переключение запрещено
+          message: Нельзя включить режим "Без охраны" при активной протечке или аварии
+    else:
+    - action: input_boolean.turn_on
+      metadata: {}
+      data: {}
+      target:
+        entity_id: input_boolean.leak_protection_armed
+    - action: switch.turn_off
+      metadata: {}
+      data: {}
+      target:
+        entity_id: switch.led4
+    - action: persistent_notification.create
+      metadata: {}
+      data:
+        title: Режим защиты от протечки
+        message: Система переведена в режим "Под охраной"
   mode: single
 - id: '1762867914639'
   alias: Stop valve 2
@@ -752,4 +824,58 @@
           minutes: 0
           seconds: 0
           milliseconds: 250
+  mode: restart
+- id: '1773511951652'
+  alias: Blink leak mode indicator led4
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - input_boolean.leak_protection_armed
+    to:
+    - 'off'
+  - trigger: homeassistant
+    event: start
+  conditions:
+  - condition: state
+    entity_id: input_boolean.leak_protection_armed
+    state:
+    - 'off'
+  actions:
+  - variables:
+      toggle_state: false
+  - repeat:
+      while:
+      - condition: state
+        entity_id: input_boolean.leak_protection_armed
+        state:
+        - 'off'
+      sequence:
+      - variables:
+          toggle_state: '{{ not toggle_state }}'
+      - if:
+        - condition: template
+          value_template: '{{ toggle_state }}'
+        then:
+        - action: switch.turn_on
+          metadata: {}
+          data: {}
+          target:
+            entity_id: switch.led4
+        else:
+        - action: switch.turn_off
+          metadata: {}
+          data: {}
+          target:
+            entity_id: switch.led4
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 0
+          milliseconds: 500
+  - action: switch.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.led4
   mode: restart
