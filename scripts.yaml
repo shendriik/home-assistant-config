@@ -141,7 +141,7 @@ unknown_valve_state_beep:
           hours: 0
           minutes: 0
           seconds: 0
-          milliseconds: 150
+          milliseconds: 25
       - action: switch.turn_off
         metadata: {}
         target:
