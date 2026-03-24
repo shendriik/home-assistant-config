@@ -8,6 +8,63 @@
       entity_id: timer.valve_1_timer
   conditions: []
   actions:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: switch.relay_1
+        state:
+        - 'on'
+      - condition: state
+        entity_id: switch.relay_2
+        state:
+        - 'off'
+      sequence:
+      - action: input_boolean.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: input_boolean.valve_1_state
+      - action: switch.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.led1
+      - action: persistent_notification.create
+        metadata: {}
+        data:
+          message: Холодная вода открыта
+          title: Кран открыт
+    - conditions:
+      - condition: state
+        entity_id: switch.relay_2
+        state:
+        - 'on'
+      - condition: state
+        entity_id: switch.relay_1
+        state:
+        - 'off'
+      sequence:
+      - action: input_boolean.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: input_boolean.valve_1_state
+      - action: switch.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.led1
+      - action: persistent_notification.create
+        metadata: {}
+        data:
+          title: Кран закрыт
+          message: Холодная вода перекрыта
+    default:
+    - action: persistent_notification.create
+      metadata: {}
+      data:
+        title: Предупреждение
+        message: Таймер крана 1 завершился без однозначного активного реле, состояние крана не обновлено
   - action: switch.turn_off
     metadata: {}
     data: {}
@@ -245,65 +302,6 @@
       message: Датчики зафиксировали протечку
       title: Протечка
   mode: single
-- id: '1762781454670'
-  alias: Set valve 1 state OPEN
-  description: ''
-  triggers:
-  - trigger: state
-    entity_id:
-    - switch.relay_1
-    from:
-    - 'on'
-    to:
-    - 'off'
-  conditions: []
-  actions:
-  - action: input_boolean.turn_on
-    metadata: {}
-    data: {}
-    target:
-      entity_id: input_boolean.valve_1_state
-  - action: switch.turn_on
-    metadata: {}
-    data: {}
-    target:
-      entity_id: switch.led1
-  - action: persistent_notification.create
-    metadata: {}
-    data:
-      message: Холодная вода открыта
-      title: Кран открыт
-  mode: single
-- id: '1762782770629'
-  alias: Set valve 1 state CLOSE
-  description: ''
-  triggers:
-  - trigger: state
-    entity_id:
-    - switch.relay_2
-    from:
-    - 'on'
-    to:
-    - 'off'
-    enabled: true
-  conditions: []
-  actions:
-  - action: input_boolean.turn_off
-    metadata: {}
-    data: {}
-    target:
-      entity_id: input_boolean.valve_1_state
-  - action: switch.turn_off
-    metadata: {}
-    data: {}
-    target:
-      entity_id: switch.led1
-  - action: persistent_notification.create
-    metadata: {}
-    data:
-      title: Кран закрыт
-      message: Холодная вода перекрыта
-  mode: single
 - id: '1762867914639'
   alias: Stop valve 2
   description: ''
@@ -314,6 +312,63 @@
       entity_id: timer.valve_2_timer
   conditions: []
   actions:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: switch.relay_3
+        state:
+        - 'on'
+      - condition: state
+        entity_id: switch.relay_4
+        state:
+        - 'off'
+      sequence:
+      - action: input_boolean.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: input_boolean.valve_2_state
+      - action: switch.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.led2
+      - action: persistent_notification.create
+        metadata: {}
+        data:
+          message: Горачая вода открыта
+          title: Кран открыт
+    - conditions:
+      - condition: state
+        entity_id: switch.relay_4
+        state:
+        - 'on'
+      - condition: state
+        entity_id: switch.relay_3
+        state:
+        - 'off'
+      sequence:
+      - action: input_boolean.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: input_boolean.valve_2_state
+      - action: switch.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.led2
+      - action: persistent_notification.create
+        metadata: {}
+        data:
+          title: Кран закрыт
+          message: Горачая вода перекрыта
+    default:
+    - action: persistent_notification.create
+      metadata: {}
+      data:
+        title: Предупреждение
+        message: Таймер крана 2 завершился без однозначного активного реле, состояние крана не обновлено
   - action: switch.turn_off
     metadata: {}
     data: {}
@@ -329,64 +384,6 @@
     data: {}
     target:
       entity_id: switch.led6
-  mode: single
-- id: '1762870282225'
-  alias: Set valve 2 state OPEN
-  description: ''
-  triggers:
-  - trigger: state
-    entity_id:
-    - switch.relay_3
-    from:
-    - 'on'
-    to:
-    - 'off'
-  conditions: []
-  actions:
-  - action: input_boolean.turn_on
-    metadata: {}
-    data: {}
-    target:
-      entity_id: input_boolean.valve_2_state
-  - action: switch.turn_on
-    metadata: {}
-    data: {}
-    target:
-      entity_id: switch.led2
-  - action: persistent_notification.create
-    metadata: {}
-    data:
-      message: Горачая вода открыта
-      title: Кран открыт
-  mode: single
-- id: '1762870407099'
-  alias: Set valve 2 state CLOSE
-  description: ''
-  triggers:
-  - trigger: state
-    entity_id:
-    - switch.relay_4
-    from:
-    - 'on'
-    to:
-    - 'off'
-  conditions: []
-  actions:
-  - action: input_boolean.turn_off
-    metadata: {}
-    data: {}
-    target:
-      entity_id: input_boolean.valve_2_state
-  - action: switch.turn_off
-    metadata: {}
-    data: {}
-    target:
-      entity_id: switch.led2
-  - action: persistent_notification.create
-    metadata: {}
-    data:
-      title: Кран закрыт
-      message: Горачая вода перекрыта
   mode: single
 - id: '1762873996623'
   alias: Valve 2 button click handler
