@@ -44,5 +44,10 @@ template:
         device_class: moisture
         state: >
           {{
-            is_state('binary_sensor.leak_sensor1', 'on')
+            is_state('binary_sensor.leak_sensor1', 'on') or
+            is_state('binary_sensor.leak_sensor2', 'on') or
+            is_state('binary_sensor.leak_sensor3', 'on') or
+            is_state('binary_sensor.leak_sensor4', 'on') or
+            is_state('binary_sensor.leak_sensor5', 'on') or
+            is_state('binary_sensor.leak_sensor6', 'on')
           }}
