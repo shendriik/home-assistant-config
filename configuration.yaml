@@ -88,3 +88,133 @@ switch:
         name: "relay_4"
         unique_id: gpio_relay_4
 
+
+modbus:
+  - name: z031
+    type: tcp
+    host: 192.168.2.19
+    port: 502
+    delay: 1
+    timeout: 5
+
+    sensors:
+      - name: "Z031 Температура встроенного датчика"
+        unique_id: z031_builtin_temperature
+        slave: 0
+        address: 30000
+        input_type: input
+        data_type: int16
+        scale: 0.1
+        precision: 1
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        scan_interval: 2
+
+      - name: "Z031 Температура приточного воздуха"
+        unique_id: z031_supply_air_temperature
+        slave: 0
+        address: 40009
+        input_type: holding
+        data_type: int16
+        scale: 0.1
+        precision: 1
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        scan_interval: 2
+
+    switches:
+      - name: "Z031 Главный пуск"
+        unique_id: z031_main_start
+        slave: 0
+        address: 40003
+        write_type: holding
+        command_on: 1
+        command_off: 0
+        verify:
+          input_type: holding
+          address: 40003
+          state_on: 1
+          state_off: 0
+
+    numbers:
+      - name: "Z031 Скорость вентилятора"
+        unique_id: z031_fan_speed_setpoint
+        slave: 0
+        address: 40000
+        input_type: holding
+        data_type: uint16
+        min: 1
+        max: 7
+        step: 1
+        mode: box
+        scan_interval: 2
+
+      - name: "Z031 Главная уставка температуры"
+        unique_id: z031_main_temperature_setpoint
+        slave: 0
+        address: 40002
+        input_type: holding
+        data_type: uint16
+        min: 0
+        max: 99
+        step: 1
+        unit_of_measurement: "°C"
+        mode: box
+        scan_interval: 2
+
+      - name: "Z031 Главный режим (запись)"
+        unique_id: z031_main_mode_mask_setpoint
+        slave: 0
+        address: 40001
+        input_type: holding
+        data_type: uint16
+        min: 0
+        max: 2
+        step: 1
+        mode: box
+        scan_interval: 2
+
+
+template:
+  - switch:
+      - name: "Z031 Режим: вентилятор"
+        unique_id: z031_mode_fan
+        state: >
+          {{ states('number.z031_glavnyi_rezhim_zapis') | int(0) == 1 }}
+        icon: mdi:fan
+        turn_on:
+          - action: modbus.write_register
+            data:
+              hub: z031
+              slave: 0
+              address: 40001
+              value: 1
+        turn_off:
+          - action: modbus.write_register
+            data:
+              hub: z031
+              slave: 0
+              address: 40001
+              value: 0
+
+      - name: "Z031 Режим: преднагрев"
+        unique_id: z031_mode_preheat
+        state: >
+          {{ states('number.z031_glavnyi_rezhim_zapis') | int(0) == 2 }}
+        icon: mdi:radiator
+        turn_on:
+          - action: modbus.write_register
+            data:
+              hub: z031
+              slave: 0
+              address: 40001
+              value: 2
+        turn_off:
+          - action: modbus.write_register
+            data:
+              hub: z031
+              slave: 0
+              address: 40001
+              value: 0
