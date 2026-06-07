@@ -36,6 +36,18 @@ input_button:
   valve_2_virtual_button:
     name: "Управление краном 2"
     icon: mdi:gesture-tap-button
+  yandex_open_cold_water_valve:
+    name: "Открыть кран холодной воды"
+    icon: mdi:valve-open
+  yandex_close_cold_water_valve:
+    name: "Закрыть кран холодной воды"
+    icon: mdi:valve-closed
+  yandex_open_hot_water_valve:
+    name: "Открыть кран горячей воды"
+    icon: mdi:valve-open
+  yandex_close_hot_water_valve:
+    name: "Закрыть кран горячей воды"
+    icon: mdi:valve-closed
 
 template:
   - binary_sensor:

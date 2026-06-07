@@ -5,3 +5,5 @@
 !automations.yaml
 !packages/
 !packages/helpers.yaml
+
+!packages/yandex_smart_home.yaml

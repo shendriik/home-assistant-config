@@ -526,6 +526,240 @@
       message: Производится управление краном горячей воды
       title: ' Ручное управление'
   mode: single
+- id: '1773511951651'
+  alias: Yandex open cold water valve
+  description: Safely opens the cold water valve for Yandex Smart Home without toggling.
+  triggers:
+  - trigger: state
+    entity_id:
+    - input_button.yandex_open_cold_water_valve
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.leak_detected
+        state:
+        - 'on'
+      sequence:
+      - action: persistent_notification.create
+        metadata: {}
+        data:
+          title: Запрещено
+          message: Алиса не может открыть кран холодной воды в состоянии "Авария"
+      - stop: Невозможно открыть кран холодной воды в состоянии "Авария"
+        error: false
+    - conditions:
+      - condition: not
+        conditions:
+        - condition: state
+          entity_id: timer.valve_1_timer
+          state:
+          - idle
+      sequence:
+      - action: persistent_notification.create
+        metadata: {}
+        data:
+          title: Кран уже в движении
+          message: Команда Алисы открыть кран холодной воды пропущена, пока работает привод
+      - stop: Кран холодной воды уже в движении
+        error: false
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.valve_1_state
+        state:
+        - 'on'
+      - condition: state
+        entity_id: input_boolean.valve_1_state_unknown
+        state:
+        - 'off'
+      sequence:
+      - action: persistent_notification.create
+        metadata: {}
+        data:
+          title: Кран уже открыт
+          message: Команда Алисы открыть кран холодной воды не требует действий
+      - stop: Кран холодной воды уже открыт
+        error: false
+    default:
+    - action: script.start_opening_valve_1
+      metadata: {}
+      data: {}
+    - action: persistent_notification.create
+      metadata: {}
+      data:
+        title: Алиса
+        message: Выполняется открытие крана холодной воды
+  mode: single
+- id: '1773511951652'
+  alias: Yandex close cold water valve
+  description: Safely closes the cold water valve for Yandex Smart Home without toggling.
+  triggers:
+  - trigger: state
+    entity_id:
+    - input_button.yandex_close_cold_water_valve
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: not
+        conditions:
+        - condition: state
+          entity_id: timer.valve_1_timer
+          state:
+          - idle
+      sequence:
+      - action: persistent_notification.create
+        metadata: {}
+        data:
+          title: Кран уже в движении
+          message: Команда Алисы закрыть кран холодной воды пропущена, пока работает привод
+      - stop: Кран холодной воды уже в движении
+        error: false
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.valve_1_state
+        state:
+        - 'off'
+      - condition: state
+        entity_id: input_boolean.valve_1_state_unknown
+        state:
+        - 'off'
+      sequence:
+      - action: persistent_notification.create
+        metadata: {}
+        data:
+          title: Кран уже закрыт
+          message: Команда Алисы закрыть кран холодной воды не требует действий
+      - stop: Кран холодной воды уже закрыт
+        error: false
+    default:
+    - action: script.start_closing_valve_1
+      metadata: {}
+      data: {}
+    - action: persistent_notification.create
+      metadata: {}
+      data:
+        title: Алиса
+        message: Выполняется закрытие крана холодной воды
+  mode: single
+- id: '1773511951653'
+  alias: Yandex open hot water valve
+  description: Safely opens the hot water valve for Yandex Smart Home without toggling.
+  triggers:
+  - trigger: state
+    entity_id:
+    - input_button.yandex_open_hot_water_valve
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.leak_detected
+        state:
+        - 'on'
+      sequence:
+      - action: persistent_notification.create
+        metadata: {}
+        data:
+          title: Запрещено
+          message: Алиса не может открыть кран горячей воды в состоянии "Авария"
+      - stop: Невозможно открыть кран горячей воды в состоянии "Авария"
+        error: false
+    - conditions:
+      - condition: not
+        conditions:
+        - condition: state
+          entity_id: timer.valve_2_timer
+          state:
+          - idle
+      sequence:
+      - action: persistent_notification.create
+        metadata: {}
+        data:
+          title: Кран уже в движении
+          message: Команда Алисы открыть кран горячей воды пропущена, пока работает привод
+      - stop: Кран горячей воды уже в движении
+        error: false
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.valve_2_state
+        state:
+        - 'on'
+      - condition: state
+        entity_id: input_boolean.valve_2_state_unknown
+        state:
+        - 'off'
+      sequence:
+      - action: persistent_notification.create
+        metadata: {}
+        data:
+          title: Кран уже открыт
+          message: Команда Алисы открыть кран горячей воды не требует действий
+      - stop: Кран горячей воды уже открыт
+        error: false
+    default:
+    - action: script.start_opening_valve_2
+      metadata: {}
+      data: {}
+    - action: persistent_notification.create
+      metadata: {}
+      data:
+        title: Алиса
+        message: Выполняется открытие крана горячей воды
+  mode: single
+- id: '1773511951654'
+  alias: Yandex close hot water valve
+  description: Safely closes the hot water valve for Yandex Smart Home without toggling.
+  triggers:
+  - trigger: state
+    entity_id:
+    - input_button.yandex_close_hot_water_valve
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: not
+        conditions:
+        - condition: state
+          entity_id: timer.valve_2_timer
+          state:
+          - idle
+      sequence:
+      - action: persistent_notification.create
+        metadata: {}
+        data:
+          title: Кран уже в движении
+          message: Команда Алисы закрыть кран горячей воды пропущена, пока работает привод
+      - stop: Кран горячей воды уже в движении
+        error: false
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.valve_2_state
+        state:
+        - 'off'
+      - condition: state
+        entity_id: input_boolean.valve_2_state_unknown
+        state:
+        - 'off'
+      sequence:
+      - action: persistent_notification.create
+        metadata: {}
+        data:
+          title: Кран уже закрыт
+          message: Команда Алисы закрыть кран горячей воды не требует действий
+      - stop: Кран горячей воды уже закрыт
+        error: false
+    default:
+    - action: script.start_closing_valve_2
+      metadata: {}
+      data: {}
+    - action: persistent_notification.create
+      metadata: {}
+      data:
+        title: Алиса
+        message: Выполняется закрытие крана горячей воды
+  mode: single
 - id: '1763842997436'
   alias: Relay 1-2 interlock
   description: ''
