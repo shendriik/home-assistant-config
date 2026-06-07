@@ -1,20 +1,12 @@
 yandex_smart_home:
   filter:
     include_entities:
-      - input_button.yandex_open_cold_water_valve
-      - input_button.yandex_close_cold_water_valve
-      - input_button.yandex_open_hot_water_valve
-      - input_button.yandex_close_hot_water_valve
+      - switch.yandex_cold_water_valve
+      - switch.yandex_hot_water_valve
   entity_config:
-    input_button.yandex_open_cold_water_valve:
-      name: "Открыть холодную воду"
+    switch.yandex_cold_water_valve:
+      name: "Кран холодной воды"
       room: "Санузел"
-    input_button.yandex_close_cold_water_valve:
-      name: "Закрыть холодную воду"
-      room: "Санузел"
-    input_button.yandex_open_hot_water_valve:
-      name: "Открыть горячую воду"
-      room: "Санузел"
-    input_button.yandex_close_hot_water_valve:
-      name: "Закрыть горячую воду"
+    switch.yandex_hot_water_valve:
+      name: "Кран горячей воды"
       room: "Санузел"

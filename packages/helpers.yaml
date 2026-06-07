@@ -36,18 +36,6 @@ input_button:
   valve_2_virtual_button:
     name: "Управление краном 2"
     icon: mdi:gesture-tap-button
-  yandex_open_cold_water_valve:
-    name: "Открыть кран холодной воды"
-    icon: mdi:valve-open
-  yandex_close_cold_water_valve:
-    name: "Закрыть кран холодной воды"
-    icon: mdi:valve-closed
-  yandex_open_hot_water_valve:
-    name: "Открыть кран горячей воды"
-    icon: mdi:valve-open
-  yandex_close_hot_water_valve:
-    name: "Закрыть кран горячей воды"
-    icon: mdi:valve-closed
 
 template:
   - binary_sensor:
@@ -63,3 +51,200 @@ template:
             is_state('binary_sensor.leak_sensor5', 'on') or
             is_state('binary_sensor.leak_sensor6', 'on')
           }}
+    switch:
+      - name: "Yandex Cold Water Valve"
+        unique_id: yandex_cold_water_valve
+        state: "{{ is_state('input_boolean.valve_1_state', 'on') }}"
+        icon: >
+          {% if is_state('input_boolean.valve_1_state', 'on') %}
+            mdi:valve-open
+          {% else %}
+            mdi:valve-closed
+          {% endif %}
+        turn_on:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: input_boolean.leak_detected
+                    state:
+                      - 'on'
+                sequence:
+                  - action: persistent_notification.create
+                    metadata: {}
+                    data:
+                      title: Запрещено
+                      message: Алиса не может открыть кран холодной воды в состоянии "Авария"
+                  - stop: Невозможно открыть кран холодной воды в состоянии "Авария"
+                    error: false
+              - conditions:
+                  - condition: not
+                    conditions:
+                      - condition: state
+                        entity_id: timer.valve_1_timer
+                        state:
+                          - idle
+                sequence:
+                  - action: persistent_notification.create
+                    metadata: {}
+                    data:
+                      title: Кран уже в движении
+                      message: Команда Алисы открыть кран холодной воды пропущена, пока работает привод
+                  - stop: Кран холодной воды уже в движении
+                    error: false
+              - conditions:
+                  - condition: state
+                    entity_id: input_boolean.valve_1_state
+                    state:
+                      - 'on'
+                  - condition: state
+                    entity_id: input_boolean.valve_1_state_unknown
+                    state:
+                      - 'off'
+                sequence:
+                  - stop: Кран холодной воды уже открыт
+                    error: false
+            default:
+              - action: script.start_opening_valve_1
+                metadata: {}
+                data: {}
+              - action: persistent_notification.create
+                metadata: {}
+                data:
+                  title: Алиса
+                  message: Выполняется открытие крана холодной воды
+        turn_off:
+          - choose:
+              - conditions:
+                  - condition: not
+                    conditions:
+                      - condition: state
+                        entity_id: timer.valve_1_timer
+                        state:
+                          - idle
+                sequence:
+                  - action: persistent_notification.create
+                    metadata: {}
+                    data:
+                      title: Кран уже в движении
+                      message: Команда Алисы закрыть кран холодной воды пропущена, пока работает привод
+                  - stop: Кран холодной воды уже в движении
+                    error: false
+              - conditions:
+                  - condition: state
+                    entity_id: input_boolean.valve_1_state
+                    state:
+                      - 'off'
+                  - condition: state
+                    entity_id: input_boolean.valve_1_state_unknown
+                    state:
+                      - 'off'
+                sequence:
+                  - stop: Кран холодной воды уже закрыт
+                    error: false
+            default:
+              - action: script.start_closing_valve_1
+                metadata: {}
+                data: {}
+              - action: persistent_notification.create
+                metadata: {}
+                data:
+                  title: Алиса
+                  message: Выполняется закрытие крана холодной воды
+      - name: "Yandex Hot Water Valve"
+        unique_id: yandex_hot_water_valve
+        state: "{{ is_state('input_boolean.valve_2_state', 'on') }}"
+        icon: >
+          {% if is_state('input_boolean.valve_2_state', 'on') %}
+            mdi:valve-open
+          {% else %}
+            mdi:valve-closed
+          {% endif %}
+        turn_on:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: input_boolean.leak_detected
+                    state:
+                      - 'on'
+                sequence:
+                  - action: persistent_notification.create
+                    metadata: {}
+                    data:
+                      title: Запрещено
+                      message: Алиса не может открыть кран горячей воды в состоянии "Авария"
+                  - stop: Невозможно открыть кран горячей воды в состоянии "Авария"
+                    error: false
+              - conditions:
+                  - condition: not
+                    conditions:
+                      - condition: state
+                        entity_id: timer.valve_2_timer
+                        state:
+                          - idle
+                sequence:
+                  - action: persistent_notification.create
+                    metadata: {}
+                    data:
+                      title: Кран уже в движении
+                      message: Команда Алисы открыть кран горячей воды пропущена, пока работает привод
+                  - stop: Кран горячей воды уже в движении
+                    error: false
+              - conditions:
+                  - condition: state
+                    entity_id: input_boolean.valve_2_state
+                    state:
+                      - 'on'
+                  - condition: state
+                    entity_id: input_boolean.valve_2_state_unknown
+                    state:
+                      - 'off'
+                sequence:
+                  - stop: Кран горячей воды уже открыт
+                    error: false
+            default:
+              - action: script.start_opening_valve_2
+                metadata: {}
+                data: {}
+              - action: persistent_notification.create
+                metadata: {}
+                data:
+                  title: Алиса
+                  message: Выполняется открытие крана горячей воды
+        turn_off:
+          - choose:
+              - conditions:
+                  - condition: not
+                    conditions:
+                      - condition: state
+                        entity_id: timer.valve_2_timer
+                        state:
+                          - idle
+                sequence:
+                  - action: persistent_notification.create
+                    metadata: {}
+                    data:
+                      title: Кран уже в движении
+                      message: Команда Алисы закрыть кран горячей воды пропущена, пока работает привод
+                  - stop: Кран горячей воды уже в движении
+                    error: false
+              - conditions:
+                  - condition: state
+                    entity_id: input_boolean.valve_2_state
+                    state:
+                      - 'off'
+                  - condition: state
+                    entity_id: input_boolean.valve_2_state_unknown
+                    state:
+                      - 'off'
+                sequence:
+                  - stop: Кран горячей воды уже закрыт
+                    error: false
+            default:
+              - action: script.start_closing_valve_2
+                metadata: {}
+                data: {}
+              - action: persistent_notification.create
+                metadata: {}
+                data:
+                  title: Алиса
+                  message: Выполняется закрытие крана горячей воды
