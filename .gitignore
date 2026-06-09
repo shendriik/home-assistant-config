@@ -2,6 +2,7 @@
 *
 !scripts.yaml
 !configuration.yaml
+!yandex_smart_home.yaml
 !automations.yaml
 !packages/
 !packages/helpers.yaml

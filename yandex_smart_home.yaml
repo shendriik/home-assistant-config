@@ -1,0 +1,10 @@
+# Test exposure for the Yandex Smart Home integration.
+# Only led4 is allowed through the integration filter for now.
+filter:
+  include_entities:
+    - switch.led4
+
+entity_config:
+  switch.led4:
+    name: led4
+    room: Тест

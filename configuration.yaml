@@ -9,6 +9,9 @@ frontend:
 homeassistant:
   packages: !include_dir_named packages
 
+# Expose selected entities to Alice via Yandex Smart Home.
+yandex_smart_home: !include yandex_smart_home.yaml
+
 automation: !include automations.yaml
 script: !include scripts.yaml
 scene: !include scenes.yaml
