@@ -38,6 +38,73 @@ input_button:
     icon: mdi:gesture-tap-button
 
 template:
+  - cover:
+
+      - name: "Холодная вода"
+        unique_id: cold_water_valve_cover
+        icon: mdi:pipe-valve
+        state: >
+          {% if is_state('switch.relay_1', 'on') and is_state('switch.relay_2', 'off') %}
+            opening
+          {% elif is_state('switch.relay_2', 'on') and is_state('switch.relay_1', 'off') %}
+            closing
+          {% elif is_state('switch.relay_1', 'on') and is_state('switch.relay_2', 'on') %}
+            {{ none }}
+          {% elif is_state('input_boolean.valve_1_state_unknown', 'on') %}
+            {{ none }}
+          {% elif is_state('input_boolean.valve_1_state', 'on') %}
+            open
+          {% else %}
+            closed
+          {% endif %}
+        open_cover:
+          action: script.request_open_valve_1
+        close_cover:
+          action: script.request_close_valve_1
+      - name: "Горячая вода"
+        unique_id: hot_water_valve_cover
+        icon: mdi:pipe-valve
+        state: >
+          {% if is_state('switch.relay_3', 'on') and is_state('switch.relay_4', 'off') %}
+            opening
+          {% elif is_state('switch.relay_4', 'on') and is_state('switch.relay_3', 'off') %}
+            closing
+          {% elif is_state('switch.relay_3', 'on') and is_state('switch.relay_4', 'on') %}
+            {{ none }}
+          {% elif is_state('input_boolean.valve_2_state_unknown', 'on') %}
+            {{ none }}
+          {% elif is_state('input_boolean.valve_2_state', 'on') %}
+            open
+          {% else %}
+            closed
+          {% endif %}
+        open_cover:
+          action: script.request_open_valve_2
+        close_cover:
+          action: script.request_close_valve_2
+      - name: "Вода"
+        unique_id: all_water_valves_cover
+        icon: mdi:pipe-valve
+        state: >
+          {% set any_opening = is_state('switch.relay_1', 'on') or is_state('switch.relay_3', 'on') %}
+          {% set any_closing = is_state('switch.relay_2', 'on') or is_state('switch.relay_4', 'on') %}
+          {% if any_opening and any_closing %}
+            {{ none }}
+          {% elif any_opening %}
+            opening
+          {% elif any_closing %}
+            closing
+          {% elif is_state('input_boolean.valve_1_state_unknown', 'on') or is_state('input_boolean.valve_2_state_unknown', 'on') %}
+            {{ none }}
+          {% elif is_state('input_boolean.valve_1_state', 'on') or is_state('input_boolean.valve_2_state', 'on') %}
+            open
+          {% else %}
+            closed
+          {% endif %}
+        open_cover:
+          action: script.request_open_all_valves
+        close_cover:
+          action: script.request_close_all_valves
   - binary_sensor:
       - name: "Any Water Leak"
         unique_id: any_water_leak
