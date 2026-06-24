@@ -158,3 +158,266 @@ unknown_valve_state_beep:
             milliseconds: 50
   alias: Unknown valve state beep
   description: ''
+
+request_open_valve_1:
+  alias: Request open valve 1
+  description: Пользовательский запрос на открытие крана холодной воды с проверками безопасности.
+  mode: single
+  sequence:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.leak_detected
+        state: 'on'
+      sequence:
+      - action: persistent_notification.create
+        data:
+          title: Запрещено
+          message: Невозможно открыть холодную воду в состоянии "Авария"
+      - stop: Невозможно открыть холодную воду в состоянии "Авария"
+        error: false
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.valve_1_state_unknown
+        state: 'on'
+      sequence:
+      - action: persistent_notification.create
+        data:
+          title: Требуется проверка
+          message: Состояние холодной воды не подтверждено. Для безопасного восстановления сначала закройте кран.
+      - stop: Состояние холодной воды не подтверждено
+        error: false
+    - conditions:
+      - condition: template
+        value_template: "{{ not is_state('timer.valve_1_timer', 'idle') }}"
+      sequence:
+      - action: persistent_notification.create
+        data:
+          title: Команда отклонена
+          message: Кран холодной воды уже выполняет операцию. Дождитесь завершения таймера.
+      - stop: Кран холодной воды уже выполняет операцию
+        error: false
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.valve_1_state
+        state: 'on'
+      sequence:
+      - action: persistent_notification.create
+        data:
+          title: Без изменений
+          message: Холодная вода уже открыта
+    default:
+    - action: script.start_opening_valve_1
+      data: {}
+    - action: persistent_notification.create
+      data:
+        title: Ручное управление
+        message: Производится открытие холодной воды
+request_close_valve_1:
+  alias: Request close valve 1
+  description: Пользовательский запрос на закрытие крана холодной воды с проверками текущего состояния.
+  mode: single
+  sequence:
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: "{{ not is_state('timer.valve_1_timer', 'idle') }}"
+      sequence:
+      - action: persistent_notification.create
+        data:
+          title: Команда отклонена
+          message: Кран холодной воды уже выполняет операцию. Дождитесь завершения таймера.
+      - stop: Кран холодной воды уже выполняет операцию
+        error: false
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.valve_1_state
+        state: 'off'
+      - condition: state
+        entity_id: input_boolean.valve_1_state_unknown
+        state: 'off'
+      sequence:
+      - action: persistent_notification.create
+        data:
+          title: Без изменений
+          message: Холодная вода уже перекрыта
+    default:
+    - action: script.start_closing_valve_1
+      data: {}
+    - action: persistent_notification.create
+      data:
+        title: Ручное управление
+        message: Производится закрытие холодной воды
+request_toggle_valve_1:
+  alias: Request toggle valve 1
+  description: Пользовательский запрос на переключение крана холодной воды через request-слой.
+  mode: single
+  sequence:
+  - if:
+    - condition: or
+      conditions:
+      - condition: state
+        entity_id: input_boolean.valve_1_state
+        state: 'on'
+      - condition: state
+        entity_id: input_boolean.valve_1_state_unknown
+        state: 'on'
+    then:
+    - action: script.request_close_valve_1
+      data: {}
+    else:
+    - action: script.request_open_valve_1
+      data: {}
+request_open_valve_2:
+  alias: Request open valve 2
+  description: Пользовательский запрос на открытие крана горячей воды с проверками безопасности.
+  mode: single
+  sequence:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.leak_detected
+        state: 'on'
+      sequence:
+      - action: persistent_notification.create
+        data:
+          title: Запрещено
+          message: Невозможно открыть горячую воду в состоянии "Авария"
+      - stop: Невозможно открыть горячую воду в состоянии "Авария"
+        error: false
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.valve_2_state_unknown
+        state: 'on'
+      sequence:
+      - action: persistent_notification.create
+        data:
+          title: Требуется проверка
+          message: Состояние горячей воды не подтверждено. Для безопасного восстановления сначала закройте кран.
+      - stop: Состояние горячей воды не подтверждено
+        error: false
+    - conditions:
+      - condition: template
+        value_template: "{{ not is_state('timer.valve_2_timer', 'idle') }}"
+      sequence:
+      - action: persistent_notification.create
+        data:
+          title: Команда отклонена
+          message: Кран горячей воды уже выполняет операцию. Дождитесь завершения таймера.
+      - stop: Кран горячей воды уже выполняет операцию
+        error: false
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.valve_2_state
+        state: 'on'
+      sequence:
+      - action: persistent_notification.create
+        data:
+          title: Без изменений
+          message: Горячая вода уже открыта
+    default:
+    - action: script.start_opening_valve_2
+      data: {}
+    - action: persistent_notification.create
+      data:
+        title: Ручное управление
+        message: Производится открытие горячей воды
+request_close_valve_2:
+  alias: Request close valve 2
+  description: Пользовательский запрос на закрытие крана горячей воды с проверками текущего состояния.
+  mode: single
+  sequence:
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: "{{ not is_state('timer.valve_2_timer', 'idle') }}"
+      sequence:
+      - action: persistent_notification.create
+        data:
+          title: Команда отклонена
+          message: Кран горячей воды уже выполняет операцию. Дождитесь завершения таймера.
+      - stop: Кран горячей воды уже выполняет операцию
+        error: false
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.valve_2_state
+        state: 'off'
+      - condition: state
+        entity_id: input_boolean.valve_2_state_unknown
+        state: 'off'
+      sequence:
+      - action: persistent_notification.create
+        data:
+          title: Без изменений
+          message: Горячая вода уже перекрыта
+    default:
+    - action: script.start_closing_valve_2
+      data: {}
+    - action: persistent_notification.create
+      data:
+        title: Ручное управление
+        message: Производится закрытие горячей воды
+request_toggle_valve_2:
+  alias: Request toggle valve 2
+  description: Пользовательский запрос на переключение крана горячей воды через request-слой.
+  mode: single
+  sequence:
+  - if:
+    - condition: or
+      conditions:
+      - condition: state
+        entity_id: input_boolean.valve_2_state
+        state: 'on'
+      - condition: state
+        entity_id: input_boolean.valve_2_state_unknown
+        state: 'on'
+    then:
+    - action: script.request_close_valve_2
+      data: {}
+    else:
+    - action: script.request_open_valve_2
+      data: {}
+request_open_all_valves:
+  alias: Request open all valves
+  description: Пользовательский запрос на открытие холодной и горячей воды через request-слой.
+  mode: single
+  sequence:
+  - action: script.request_open_valve_1
+    data: {}
+  - action: script.request_open_valve_2
+    data: {}
+request_close_all_valves:
+  alias: Request close all valves
+  description: Пользовательский запрос на закрытие холодной и горячей воды через request-слой.
+  mode: single
+  sequence:
+  - action: script.request_close_valve_1
+    data: {}
+  - action: script.request_close_valve_2
+    data: {}
+request_toggle_all_valves:
+  alias: Request toggle all valves
+  description: Пользовательский запрос на переключение воды целиком через request-слой.
+  mode: single
+  sequence:
+  - if:
+    - condition: or
+      conditions:
+      - condition: state
+        entity_id: input_boolean.valve_1_state
+        state: 'on'
+      - condition: state
+        entity_id: input_boolean.valve_2_state
+        state: 'on'
+      - condition: state
+        entity_id: input_boolean.valve_1_state_unknown
+        state: 'on'
+      - condition: state
+        entity_id: input_boolean.valve_2_state_unknown
+        state: 'on'
+    then:
+    - action: script.request_close_all_valves
+      data: {}
+    else:
+    - action: script.request_open_all_valves
+      data: {}

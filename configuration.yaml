@@ -12,6 +12,8 @@ homeassistant:
 automation: !include automations.yaml
 script: !include scripts.yaml
 scene: !include scenes.yaml
+yandex_smart_home: !include yandex_smart_home.yaml
+
 
 
 binary_sensor:

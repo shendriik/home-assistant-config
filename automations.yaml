@@ -235,44 +235,9 @@
     - 'on'
   conditions: []
   actions:
-  - if:
-    - condition: or
-      conditions:
-      - condition: state
-        entity_id: input_boolean.valve_1_state
-        state:
-        - 'on'
-      - condition: state
-        entity_id: input_boolean.valve_1_state_unknown
-        state:
-        - 'on'
-    then:
-    - action: script.start_closing_valve_1
-      metadata: {}
-      data: {}
-    else:
-    - if:
-      - condition: state
-        entity_id: input_boolean.leak_detected
-        state:
-        - 'on'
-      then:
-      - action: persistent_notification.create
-        metadata: {}
-        data:
-          title: Запрещено
-          message: Невозможно открыть кран в состоянии "Авария"
-      - stop: Невозможно открыть кран в состоянии "Авария"
-        error: true
-      else:
-      - action: script.start_opening_valve_1
-        metadata: {}
-        data: {}
-  - action: persistent_notification.create
+  - action: script.request_toggle_valve_1
     metadata: {}
-    data:
-      message: Производится управление краном холодной воды
-      title: ' Ручное управление'
+    data: {}
   mode: single
 - id: '1762765008061'
   alias: Periodic leak alarm notification
@@ -487,44 +452,9 @@
     - 'on'
   conditions: []
   actions:
-  - if:
-    - condition: or
-      conditions:
-      - condition: state
-        entity_id: input_boolean.valve_2_state
-        state:
-        - 'on'
-      - condition: state
-        entity_id: input_boolean.valve_2_state_unknown
-        state:
-        - 'on'
-    then:
-    - action: script.start_closing_valve_2
-      metadata: {}
-      data: {}
-    else:
-    - if:
-      - condition: state
-        entity_id: input_boolean.leak_detected
-        state:
-        - 'on'
-      then:
-      - action: persistent_notification.create
-        metadata: {}
-        data:
-          title: Запрещено
-          message: Невозможно открыть кран в состоянии "Авария"
-      - stop: Невозможно открыть кран в состоянии "Авария"
-        error: false
-      else:
-      - action: script.start_opening_valve_2
-        metadata: {}
-        data: {}
-  - action: persistent_notification.create
+  - action: script.request_toggle_valve_2
     metadata: {}
-    data:
-      message: Производится управление краном горячей воды
-      title: ' Ручное управление'
+    data: {}
   mode: single
 - id: '1763842997436'
   alias: Relay 1-2 interlock
