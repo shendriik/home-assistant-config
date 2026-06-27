@@ -97,34 +97,6 @@ modbus:
     port: 502
     delay: 1
     timeout: 5
-
-    sensors:
-      - name: "Z031 Температура встроенного датчика"
-        unique_id: z031_builtin_temperature
-        slave: 0
-        address: 30000
-        input_type: input
-        data_type: int16
-        scale: 0.1
-        precision: 1
-        unit_of_measurement: "°C"
-        device_class: temperature
-        state_class: measurement
-        scan_interval: 2
-
-      - name: "Z031 Температура приточного воздуха"
-        unique_id: z031_supply_air_temperature
-        slave: 0
-        address: 40009
-        input_type: holding
-        data_type: int16
-        scale: 0.1
-        precision: 1
-        unit_of_measurement: "°C"
-        device_class: temperature
-        state_class: measurement
-        scan_interval: 2
-
     switches:
       - name: "Z031 Главный пуск"
         unique_id: z031_main_start
@@ -139,83 +111,169 @@ modbus:
           state_on: 1
           state_off: 0
 
-    numbers:
+    sensors:
+      - name: "Z031 Температура встроенного датчика"
+        unique_id: z031_builtin_temperature
+        slave: 0
+        address: 30000
+        input_type: input
+        data_type: int16
+        scale: 0.1
+        precision: 1
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        scan_interval: 5
+
       - name: "Z031 Скорость вентилятора"
-        unique_id: z031_fan_speed_setpoint
+        unique_id: z031_fan_speed
         slave: 0
         address: 40000
         input_type: holding
         data_type: uint16
-        min: 1
-        max: 7
-        step: 1
-        mode: box
-        scan_interval: 2
+        scan_interval: 5
 
-      - name: "Z031 Главная уставка температуры"
-        unique_id: z031_main_temperature_setpoint
-        slave: 0
-        address: 40002
-        input_type: holding
-        data_type: uint16
-        min: 0
-        max: 99
-        step: 1
-        unit_of_measurement: "°C"
-        mode: box
-        scan_interval: 2
-
-      - name: "Z031 Главный режим (запись)"
-        unique_id: z031_main_mode_mask_setpoint
+      - name: "Z031 Главный режим"
+        unique_id: z031_main_mode
         slave: 0
         address: 40001
         input_type: holding
         data_type: uint16
-        min: 0
-        max: 2
-        step: 1
-        mode: box
-        scan_interval: 2
+        scan_interval: 5
 
+      - name: "Z031 Главная уставка температуры"
+        unique_id: z031_main_temperature_setpoint_read
+        slave: 0
+        address: 40002
+        input_type: holding
+        data_type: uint16
+        unit_of_measurement: "°C"
+        device_class: temperature
+        scan_interval: 5
 
-template:
-  - switch:
-      - name: "Z031 Режим: вентилятор"
-        unique_id: z031_mode_fan
-        state: >
-          {{ states('number.z031_glavnyi_rezhim_zapis') | int(0) == 1 }}
-        icon: mdi:fan
-        turn_on:
+      - name: "Z031 Температура приточного воздуха"
+        unique_id: z031_supply_air_temperature
+        slave: 0
+        address: 40009
+        input_type: holding
+        data_type: int16
+        scale: 0.1
+        precision: 1
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        scan_interval: 5
+
+climate:
+  - platform: climate_template
+    name: "Z031 Вентиляция"
+    unique_id: z031_ventilation_climate
+    icon: mdi:hvac
+    modes:
+      - "off"
+      - "fan_only"
+      - "heat"
+    fan_modes:
+      - "low"
+      - "medium"
+      - "high"
+    min_temp: 15
+    max_temp: 30
+    precision: 0.1
+    temp_step: 1
+    availability_template: >
+      {{ has_value('sensor.z031_temperatura_pritochnogo_vozdukha')
+         and has_value('sensor.z031_glavnaia_ustavka_temperatury')
+         and has_value('sensor.z031_glavnyi_rezhim')
+         and has_value('sensor.z031_skorost_ventiliatora')
+         and has_value('switch.z031_glavnyi_pusk') }}
+    current_temperature_template: >
+      {{ states('sensor.z031_temperatura_pritochnogo_vozdukha') }}
+    target_temperature_template: >
+      {{ states('sensor.z031_glavnaia_ustavka_temperatury') }}
+    hvac_mode_template: >
+      {% if is_state('switch.z031_glavnyi_pusk', 'off') %}
+        off
+      {% else %}
+        {% set mode = states('sensor.z031_glavnyi_rezhim') | int(1) %}
+        {% if mode == 2 %}
+          heat
+        {% else %}
+          fan_only
+        {% endif %}
+      {% endif %}
+    hvac_action_template: >
+      {% if is_state('switch.z031_glavnyi_pusk', 'off') %}
+        off
+      {% else %}
+        {% set mode = states('sensor.z031_glavnyi_rezhim') | int(1) %}
+        {% if mode == 2 %}
+          heating
+        {% else %}
+          fan
+        {% endif %}
+      {% endif %}
+    fan_mode_template: >
+      {% set speed = states('sensor.z031_skorost_ventiliatora') | int(0) %}
+      {% if speed == 0 %}
+        none
+      {% elif speed == 1 %}
+        low
+      {% elif speed == 2 %}
+        medium
+      {% else %}
+        high
+      {% endif %}
+    set_hvac_mode:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ hvac_mode == 'off' }}"
+            sequence:
+              - action: switch.turn_off
+                target:
+                  entity_id: switch.z031_glavnyi_pusk
+          - conditions:
+              - condition: template
+                value_template: "{{ hvac_mode == 'heat' }}"
+            sequence:
+              - action: switch.turn_on
+                target:
+                  entity_id: switch.z031_glavnyi_pusk
+              - action: modbus.write_register
+                data:
+                  hub: z031
+                  slave: 0
+                  address: 40001
+                  value: 2
+        default:
+          - action: switch.turn_on
+            target:
+              entity_id: switch.z031_glavnyi_pusk
           - action: modbus.write_register
             data:
               hub: z031
               slave: 0
               address: 40001
               value: 1
-        turn_off:
-          - action: modbus.write_register
-            data:
-              hub: z031
-              slave: 0
-              address: 40001
-              value: 0
-
-      - name: "Z031 Режим: преднагрев"
-        unique_id: z031_mode_preheat
-        state: >
-          {{ states('number.z031_glavnyi_rezhim_zapis') | int(0) == 2 }}
-        icon: mdi:radiator
-        turn_on:
-          - action: modbus.write_register
-            data:
-              hub: z031
-              slave: 0
-              address: 40001
-              value: 2
-        turn_off:
-          - action: modbus.write_register
-            data:
-              hub: z031
-              slave: 0
-              address: 40001
-              value: 0
+    set_temperature:
+      - action: modbus.write_register
+        data:
+          hub: z031
+          slave: 0
+          address: 40002
+          value: "{{ temperature | round(0) | int }}"
+    set_fan_mode:
+      - action: modbus.write_register
+        data:
+          hub: z031
+          slave: 0
+          address: 40000
+          value: >
+            {% if fan_mode == 'low' %}
+              1
+            {% elif fan_mode == 'medium' %}
+              2
+            {% else %}
+              3
+            {% endif %}
